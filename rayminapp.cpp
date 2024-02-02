@@ -53,11 +53,11 @@
 // #include "styles/style_terminal.h"    // raygui style: terminal
 
 
-// #if defined(PLATFORM_DESKTOP)
-     #define GLSL_VERSION            330
-// #else   // PLATFORM_ANDROID, PLATFORM_WEB
-//   #define GLSL_VERSION            120
-// #endif
+#if defined(PLATFORM_DESKTOP)
+    #define GLSL_VERSION 330
+#else   // PLATFORM_ANDROID, PLATFORM_WEB
+    #define GLSL_VERSION 120
+#endif
 
 Font font;
 

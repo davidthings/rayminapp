@@ -583,8 +583,8 @@ void DrawGameplayScreen(void)
         }
 
         for ( int i = 0; i <= 35; i++ ) {
-            Vector3 a = (Vector3){ (i-13.5)*4.0f, 0, 0 };
-            Vector3 b = (Vector3){ ((i)/6-2.5)*4.0f, 0, ((i)%6-2.5)*4.0f };
+            Vector3 a = (Vector3){ (i-13.5f)*4.0f, 0, 0 };
+            Vector3 b = (Vector3){ ((i)/6-2.5f)*4.0f, 0, ((i)%6-2.5f)*4.0f };
 
             Vector3 p = Vector3Lerp( a, b, LayoutFraction );
             DrawModel( GameCube, p, 1.0f, LIGHTGRAY );
@@ -608,7 +608,7 @@ void DrawGameplayScreen(void)
         Matrix matScale = MatrixScale(scale, scale, scale);
         Matrix matRotation = MatrixRotate((Vector3){0,1,0}, 0 );
         for ( int i = 0; i < CubeInstanceCount; i++ ) {
-            Vector3 l = (Vector3){ ((i)/(int)nisqr-nisqr/2-0.5)*1.0f, -12, ((i)%(int)nisqr-nisqr/2-0.5)*1.0f };    
+            Vector3 l = (Vector3){ ((i)/(int)nisqr-nisqr/2-0.5f)*1.0f, -12, ((i)%(int)nisqr-nisqr/2-0.5f)*1.0f };    
             Matrix matTranslation = MatrixTranslate(l.x, l.y, l.z);
 
             CubeInstances[i] = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);

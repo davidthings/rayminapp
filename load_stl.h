@@ -23,7 +23,7 @@ typedef struct vertex_info_t {
 } vertex_info_t;
 #pragma pack(pop)
 
-Mesh load_stl(char *file_path) {
+Mesh load_stl(const char *file_path) {
     Mesh mesh = {0};
 
     mesh.vboId = (unsigned int *)RL_CALLOC(7, sizeof(unsigned int));
@@ -36,7 +36,7 @@ Mesh load_stl(char *file_path) {
         exit(-1);
     }
 
-    unsigned int triangle_count = 0;
+    unsigned long triangle_count = 0;
 
     fseek(fap, sizeof(__uint8_t) * 80, 0);
     fread(&triangle_count, sizeof(int), 1, fap);

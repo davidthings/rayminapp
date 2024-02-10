@@ -6,4 +6,5 @@ add_executable( rayminapp
                 rayminapp.cpp
 )
 
-target_link_libraries( rayminapp raylib GL m pthread dl rt )
+target_link_libraries( rayminapp raylib )
+

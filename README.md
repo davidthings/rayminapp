@@ -1,2 +1,2 @@
 # rayminapp
-Minimal ray application experiment
+Minimal Raylib application experiment

@@ -56,7 +56,7 @@
 #if defined(PLATFORM_DESKTOP)
     #define GLSL_VERSION 330
 #else   // PLATFORM_ANDROID, PLATFORM_WEB
-    #define GLSL_VERSION 120
+    #define GLSL_VERSION 330
 #endif
 
 Font font;
@@ -600,12 +600,14 @@ void DrawGameplayScreen(void)
             } 
         }
 
-        for ( int i = 0; i <= 35; i++ ) {
-            Vector3 a = (Vector3){ (i-13.5f)*4.0f, 0, 0 };
-            Vector3 b = (Vector3){ ((i)/6-2.5f)*4.0f, 0, ((i)%6-2.5f)*4.0f };
+        if ( ElementModels ) {
+            for ( int i = 0; i <= 35; i++ ) {
+                Vector3 a = (Vector3){ (i-13.5f)*4.0f, 0, 0 };
+                Vector3 b = (Vector3){ ((i)/6-2.5f)*4.0f, 0, ((i)%6-2.5f)*4.0f };
 
-            Vector3 p = Vector3Lerp( a, b, LayoutFraction );
-            DrawModel( GameCube, p, 1.0f, LIGHTGRAY );
+                Vector3 p = Vector3Lerp( a, b, LayoutFraction );
+                DrawModel( GameCube, p, 1.0f, LIGHTGRAY );
+            }
         }
 
         if ( Dynamic ) {
@@ -644,12 +646,15 @@ void DrawGameplayScreen(void)
 
         Vector3 spherePosition = (Vector3){ 22.0f*sin(cycle), 0.0f, 22.0f*cos(cycle) };
 
-        DrawModel( GameSphere, spherePosition, 1.0f, LIGHTGRAY );
+        if ( ElementModels ) {
+            DrawModel( GameSphere, spherePosition, 1.0f, LIGHTGRAY );
+        }
 
-        Vector2 size = { 1.0f, 1.0f };
-        Rectangle source = { 0.0f, 0.0f, (float)InformationTexture.texture.width, -(float)InformationTexture.texture.height };
-
-        DrawBillboardRec( GameCamera, InformationTexture.texture, source, (Vector3){ 22.0f*sin(cycle), 4.0f, 22.0f*cos(cycle)}, size, WHITE );
+        if ( ElementText ) {
+            Vector2 size = { 1.0f, 1.0f };
+            Rectangle source = { 0.0f, 0.0f, (float)InformationTexture.texture.width, -(float)InformationTexture.texture.height };
+            DrawBillboardRec( GameCamera, InformationTexture.texture, source, (Vector3){ 22.0f*sin(cycle), 4.0f, 22.0f*cos(cycle)}, size, WHITE );
+        }
 
         Vector3 points[4];
 
@@ -662,8 +667,10 @@ void DrawGameplayScreen(void)
             points[ 2 ] = points[ 3 ];
             points[ 2 ].y += 10;
 
-            DrawModel( GameSphere, points[ 0 ], 0.2f, LIGHTGRAY );
-            DrawModel( GameCube, points[ 3 ], 0.2f, LIGHTGRAY );
+            if ( ElementModels ) {
+                DrawModel( GameSphere, points[ 0 ], 0.2f, LIGHTGRAY );
+                DrawModel( GameCube, points[ 3 ], 0.2f, LIGHTGRAY );
+            }
 
             // DrawSplineSegmentBezierCubic3D( points[0], points[1], points[2], points[3], 24, LIGHTGRAY, false );
 

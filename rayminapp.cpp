@@ -622,19 +622,23 @@ void DrawGameplayScreen(void)
         //     DrawModel( GameCube, l, 0.25f, WHITE );
         // }
 
-        float nisqr = sqrt( CubeInstanceCount );
+        #if ( 0 )
 
-        float scale = 0.25F;
-        Matrix matScale = MatrixScale(scale, scale, scale);
-        Matrix matRotation = MatrixRotate((Vector3){0,1,0}, 0 );
-        for ( int i = 0; i < CubeInstanceCount; i++ ) {
-            Vector3 l = (Vector3){ ((i)/(int)nisqr-nisqr/2-0.5f)*1.0f, -12, ((i)%(int)nisqr-nisqr/2-0.5f)*1.0f };    
-            Matrix matTranslation = MatrixTranslate(l.x, l.y, l.z);
+            float nisqr = sqrt( CubeInstanceCount );
 
-            CubeInstances[i] = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
-        }
+            float scale = 0.25F;
+            Matrix matScale = MatrixScale(scale, scale, scale);
+            Matrix matRotation = MatrixRotate((Vector3){0,1,0}, 0 );
+            for ( int i = 0; i < CubeInstanceCount; i++ ) {
+                Vector3 l = (Vector3){ ((i)/(int)nisqr-nisqr/2-0.5f)*1.0f, -12, ((i)%(int)nisqr-nisqr/2-0.5f)*1.0f };    
+                Matrix matTranslation = MatrixTranslate(l.x, l.y, l.z);
 
-        DrawMeshInstanced( GameCubeMesh, MatInstances, CubeInstances, CubeInstanceCount );
+                CubeInstances[i] = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+            }
+
+            DrawMeshInstanced( GameCubeMesh, MatInstances, CubeInstances, CubeInstanceCount );
+
+        #endif 
 
         if ( ElementText ) {
             BeginShaderMode( FontShader);    // Activate SDF font shader
@@ -659,13 +663,15 @@ void DrawGameplayScreen(void)
         Vector3 points[4];
 
         for ( int i = -20; i < 20; i++ ) {
-            points[ 0 ] = (Vector3){ 2.0f * i, 4.0f*sin(3*cycle)+4.0f, -16.0f * sin(cycle)};
-            points[ 3 ] = (Vector3){ 2.0f * i, -4.0f*sin(4*cycle)+4.0f, 16.0f * sin( cycle)};
+            if ( ElementModels || ElementLines ) {
+                points[ 0 ] = (Vector3){ 2.0f * i, 4.0f*sin(3*cycle)+4.0f, -16.0f * sin(cycle)};
+                points[ 3 ] = (Vector3){ 2.0f * i, -4.0f*sin(4*cycle)+4.0f, 16.0f * sin( cycle)};
 
-            points[ 1 ] = points[ 0 ];
-            points[ 1 ].y -= 15;
-            points[ 2 ] = points[ 3 ];
-            points[ 2 ].y += 10;
+                points[ 1 ] = points[ 0 ];
+                points[ 1 ].y -= 15;
+                points[ 2 ] = points[ 3 ];
+                points[ 2 ].y += 10;
+            }
 
             if ( ElementModels ) {
                 DrawModel( GameSphere, points[ 0 ], 0.2f, LIGHTGRAY );
@@ -694,7 +700,9 @@ void DrawGameplayScreen(void)
             DrawModel( GameStl, modelPosition, 0.1f, RED);        // Draw 3d model with texture
         }
 
-        DrawGrid( 20, 10.0f );        // Draw a grid
+        if ( ElementLines ) {
+            DrawGrid( 20, 10.0f );        // Draw a grid
+        }
 
     EndMode3D();
                 

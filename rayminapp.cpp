@@ -119,6 +119,7 @@ Model GameStl;
 Light Lights[4] = { 0 };
 Light InstancingLights[4] = { 0 };
 
+bool ElementErase = true;
 bool ElementLines = true;
 bool ElementObjects = true;
 bool ElementModels = true;
@@ -495,6 +496,9 @@ void UpdateGameplayScreen(void)
         Lights[3].enabled = !Lights[3].enabled; 
         InstancingLights[3].enabled = !InstancingLights[3].enabled; 
     }
+    if (IsKeyPressed(KEY_E)) { 
+        ElementErase = !ElementErase; 
+    }
     if (IsKeyPressed(KEY_L)) { 
         ElementLines = !ElementLines; 
     }
@@ -577,8 +581,9 @@ void UpdateGameplayScreen(void)
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
-    // TODO: Draw GAMEPLAY screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
+    if ( ElementErase ) {
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
+    }
     
     float cameraPos[3] = { GameCamera.position.x, GameCamera.position.y, GameCamera.position.z };
     SetShaderValue(GameShader, GameShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
@@ -716,7 +721,7 @@ void DrawGameplayScreen(void)
         BeginShaderMode( FontShader);    // Activate SDF font shader
 
             // GuiDrawRectangle( (Rectangle){ 5, 115, 410, 290 }, 1, WHITE, WHITE );
-            GuiPanel( (Rectangle){ 20, 70, 340, 370 }, 0 );
+            GuiPanel( (Rectangle){ 20, 70, 340, 410 }, 0 );
             // GuiGroupBox( (Rectangle){ 10, 120, 400, 200 }, "Viz Control" );
 
             GuiSetStyle( DEFAULT, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT );
@@ -750,7 +755,7 @@ void DrawGameplayScreen(void)
             GuiToggle( (Rectangle){ 130, 320, 200, 32 }, "Models", &ElementModels );
             GuiToggle( (Rectangle){ 130, 360, 200, 32 }, "Text", &ElementText );
             GuiToggle( (Rectangle){ 130, 400, 200, 32 }, "UI", &ElementUi );
-
+            GuiToggle( (Rectangle){ 130, 440, 200, 32 }, "Erase", &ElementErase );
 
         EndShaderMode();
     }

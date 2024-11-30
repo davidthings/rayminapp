@@ -56,7 +56,7 @@
 #if defined(PLATFORM_DESKTOP)
     #define GLSL_VERSION 330
 #else   // PLATFORM_ANDROID, PLATFORM_WEB
-    #define GLSL_VERSION 120
+    #define GLSL_VERSION 330
 #endif
 
 Font font;
@@ -116,8 +116,15 @@ Mesh GameStlMesh;
 
 Model GameStl;
 
-Light lights[4] = { 0 };
+Light Lights[4] = { 0 };
 Light InstancingLights[4] = { 0 };
+
+bool ElementErase = true;
+bool ElementLines = true;
+bool ElementObjects = true;
+bool ElementModels = true;
+bool ElementUi = true;
+bool ElementText = true;
 
 Font FontDefault = { 0 };
 Font FontSDF = { 0 };
@@ -274,7 +281,7 @@ void InitGameplayScreen(void)
     // Create one light
     // CreateLight(LIGHT_DIRECTIONAL, (Vector3){ 50.0f, 50.0f, 0.0f }, Vector3Zero(), WHITE, InstancingShader);
 
-    // Create lights
+    // Create Lights
     ClearLightIndex();
     InstancingLights[0] = CreateLight(LIGHT_POINT, (Vector3){ 0, 8, 20 }, Vector3Zero(), WHITE,    InstancingShader);
     InstancingLights[1] = CreateLight(LIGHT_POINT, (Vector3){ 32, 32, 32 }, Vector3Zero(), RED,    InstancingShader);
@@ -293,17 +300,17 @@ void InitGameplayScreen(void)
     MatInstances.shader = InstancingShader;
     MatInstances.maps[MATERIAL_MAP_DIFFUSE].color = WHITE;
 
-    // Create lights
+    // Create Lights
     ClearLightIndex();
-    lights[0] = CreateLight(LIGHT_POINT, (Vector3){ 0, 8, 20 }, Vector3Zero(), WHITE, GameShader);
-    lights[1] = CreateLight(LIGHT_POINT, (Vector3){ 32, 32, 32 }, Vector3Zero(), RED, GameShader);
-    lights[2] = CreateLight(LIGHT_POINT, (Vector3){ -32, 32, 32 }, Vector3Zero(), GREEN, GameShader);
-    lights[3] = CreateLight(LIGHT_POINT, (Vector3){ 32, 32, -32 }, Vector3Zero(), BLUE, GameShader);
+    Lights[0] = CreateLight(LIGHT_POINT, (Vector3){ 0, 8, 20 }, Vector3Zero(), WHITE, GameShader);
+    Lights[1] = CreateLight(LIGHT_POINT, (Vector3){ 32, 32, 32 }, Vector3Zero(), RED, GameShader);
+    Lights[2] = CreateLight(LIGHT_POINT, (Vector3){ -32, 32, 32 }, Vector3Zero(), GREEN, GameShader);
+    Lights[3] = CreateLight(LIGHT_POINT, (Vector3){ 32, 32, -32 }, Vector3Zero(), BLUE, GameShader);
 
-    lights[0].enabled = true;
-    lights[1].enabled = false;
-    lights[2].enabled = false;
-    lights[3].enabled = false;
+    Lights[0].enabled = true;
+    Lights[1].enabled = false;
+    Lights[2].enabled = false;
+    Lights[3].enabled = false;
 
     // Assign out lighting shader to model
     GameCube.materials[0].shader = GameShader;
@@ -474,25 +481,40 @@ void UpdateGameplayScreen(void)
     }
 
     if (IsKeyPressed(KEY_W)) { 
-        lights[0].enabled = !lights[0].enabled; 
+        Lights[0].enabled = !Lights[0].enabled; 
         InstancingLights[0].enabled = !InstancingLights[0].enabled; 
     }
     if (IsKeyPressed(KEY_R)) { 
-        lights[1].enabled = !lights[1].enabled; 
+        Lights[1].enabled = !Lights[1].enabled; 
         InstancingLights[1].enabled = !InstancingLights[1].enabled; 
     }
     if (IsKeyPressed(KEY_G)) { 
-        lights[2].enabled = !lights[2].enabled; 
+        Lights[2].enabled = !Lights[2].enabled; 
         InstancingLights[2].enabled = !InstancingLights[2].enabled; 
     }
     if (IsKeyPressed(KEY_B)) { 
-        lights[3].enabled = !lights[3].enabled; 
+        Lights[3].enabled = !Lights[3].enabled; 
         InstancingLights[3].enabled = !InstancingLights[3].enabled; 
+    }
+    if (IsKeyPressed(KEY_E)) { 
+        ElementErase = !ElementErase; 
+    }
+    if (IsKeyPressed(KEY_L)) { 
+        ElementLines = !ElementLines; 
+    }
+    if (IsKeyPressed(KEY_M)) { 
+        ElementModels = !ElementModels; 
+    }
+    if (IsKeyPressed(KEY_U)) { 
+        ElementUi = !ElementUi; 
+    }
+    if (IsKeyPressed(KEY_T)) { 
+        ElementText = !ElementText; 
     }
 
     // Update light values (actually, only enable/disable them)
     for (int i = 0; i < 4; i++) {
-        UpdateLightValues(GameShader, lights[i]);
+        UpdateLightValues(GameShader, Lights[i]);
         UpdateLightValues(InstancingShader, InstancingLights[i] );
     }
 
@@ -559,8 +581,9 @@ void UpdateGameplayScreen(void)
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
-    // TODO: Draw GAMEPLAY screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
+    if ( ElementErase ) {
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
+    }
     
     float cameraPos[3] = { GameCamera.position.x, GameCamera.position.y, GameCamera.position.z };
     SetShaderValue(GameShader, GameShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
@@ -582,12 +605,14 @@ void DrawGameplayScreen(void)
             } 
         }
 
-        for ( int i = 0; i <= 35; i++ ) {
-            Vector3 a = (Vector3){ (i-13.5f)*4.0f, 0, 0 };
-            Vector3 b = (Vector3){ ((i)/6-2.5f)*4.0f, 0, ((i)%6-2.5f)*4.0f };
+        if ( ElementModels ) {
+            for ( int i = 0; i <= 35; i++ ) {
+                Vector3 a = (Vector3){ (i-13.5f)*4.0f, 0, 0 };
+                Vector3 b = (Vector3){ ((i)/6-2.5f)*4.0f, 0, ((i)%6-2.5f)*4.0f };
 
-            Vector3 p = Vector3Lerp( a, b, LayoutFraction );
-            DrawModel( GameCube, p, 1.0f, LIGHTGRAY );
+                Vector3 p = Vector3Lerp( a, b, LayoutFraction );
+                DrawModel( GameCube, p, 1.0f, LIGHTGRAY );
+            }
         }
 
         if ( Dynamic ) {
@@ -602,107 +627,138 @@ void DrawGameplayScreen(void)
         //     DrawModel( GameCube, l, 0.25f, WHITE );
         // }
 
-        float nisqr = sqrt( CubeInstanceCount );
+        #if ( 0 )
 
-        float scale = 0.25F;
-        Matrix matScale = MatrixScale(scale, scale, scale);
-        Matrix matRotation = MatrixRotate((Vector3){0,1,0}, 0 );
-        for ( int i = 0; i < CubeInstanceCount; i++ ) {
-            Vector3 l = (Vector3){ ((i)/(int)nisqr-nisqr/2-0.5f)*1.0f, -12, ((i)%(int)nisqr-nisqr/2-0.5f)*1.0f };    
-            Matrix matTranslation = MatrixTranslate(l.x, l.y, l.z);
+            float nisqr = sqrt( CubeInstanceCount );
 
-            CubeInstances[i] = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+            float scale = 0.25F;
+            Matrix matScale = MatrixScale(scale, scale, scale);
+            Matrix matRotation = MatrixRotate((Vector3){0,1,0}, 0 );
+            for ( int i = 0; i < CubeInstanceCount; i++ ) {
+                Vector3 l = (Vector3){ ((i)/(int)nisqr-nisqr/2-0.5f)*1.0f, -12, ((i)%(int)nisqr-nisqr/2-0.5f)*1.0f };    
+                Matrix matTranslation = MatrixTranslate(l.x, l.y, l.z);
+
+                CubeInstances[i] = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+            }
+
+            DrawMeshInstanced( GameCubeMesh, MatInstances, CubeInstances, CubeInstanceCount );
+
+        #endif 
+
+        if ( ElementText ) {
+            BeginShaderMode( FontShader);    // Activate SDF font shader
+                Vector3 mt = MeasureText3D(FontSDF, "SPHERE", 32,0, 0 );
+
+                DrawText3D( FontSDF, "SPHERE", (Vector3){ 22.0f*sin(cycle)-mt.x/2, -5.0f, 22.0f*cos(cycle)}, 32, 5, 0.0, true, GRAY );
+            EndShaderMode();
         }
-
-        DrawMeshInstanced( GameCubeMesh, MatInstances, CubeInstances, CubeInstanceCount );
-
-        BeginShaderMode( FontShader);    // Activate SDF font shader
-            Vector3 mt = MeasureText3D(FontSDF, "SPHERE", 32,0, 0 );
-
-            DrawText3D( FontSDF, "SPHERE", (Vector3){ 22.0f*sin(cycle)-mt.x/2, -5.0f, 22.0f*cos(cycle)}, 32, 5, 0.0, true, GRAY );
-        EndShaderMode();
 
         Vector3 spherePosition = (Vector3){ 22.0f*sin(cycle), 0.0f, 22.0f*cos(cycle) };
 
-        DrawModel( GameSphere, spherePosition, 1.0f, LIGHTGRAY );
+        if ( ElementModels ) {
+            DrawModel( GameSphere, spherePosition, 1.0f, LIGHTGRAY );
+        }
 
-        Vector2 size = { 1.0f, 1.0f };
-        Rectangle source = { 0.0f, 0.0f, (float)InformationTexture.texture.width, -(float)InformationTexture.texture.height };
-
-        DrawBillboardRec( GameCamera, InformationTexture.texture, source, (Vector3){ 22.0f*sin(cycle), 4.0f, 22.0f*cos(cycle)}, size, WHITE );
+        if ( ElementText ) {
+            Vector2 size = { 1.0f, 1.0f };
+            Rectangle source = { 0.0f, 0.0f, (float)InformationTexture.texture.width, -(float)InformationTexture.texture.height };
+            DrawBillboardRec( GameCamera, InformationTexture.texture, source, (Vector3){ 22.0f*sin(cycle), 4.0f, 22.0f*cos(cycle)}, size, WHITE );
+        }
 
         Vector3 points[4];
 
         for ( int i = -20; i < 20; i++ ) {
-            points[ 0 ] = (Vector3){ 2.0f * i, 4.0f*sin(3*cycle)+4.0f, -16.0f * sin(cycle)};
-            points[ 3 ] = (Vector3){ 2.0f * i, -4.0f*sin(4*cycle)+4.0f, 16.0f * sin( cycle)};
+            if ( ElementModels || ElementLines ) {
+                points[ 0 ] = (Vector3){ 2.0f * i, 4.0f*sin(3*cycle)+4.0f, -16.0f * sin(cycle)};
+                points[ 3 ] = (Vector3){ 2.0f * i, -4.0f*sin(4*cycle)+4.0f, 16.0f * sin( cycle)};
 
-            points[ 1 ] = points[ 0 ];
-            points[ 1 ].y -= 15;
-            points[ 2 ] = points[ 3 ];
-            points[ 2 ].y += 10;
+                points[ 1 ] = points[ 0 ];
+                points[ 1 ].y -= 15;
+                points[ 2 ] = points[ 3 ];
+                points[ 2 ].y += 10;
+            }
 
-            DrawModel( GameSphere, points[ 0 ], 0.2f, LIGHTGRAY );
-            DrawModel( GameCube, points[ 3 ], 0.2f, LIGHTGRAY );
+            if ( ElementModels ) {
+                DrawModel( GameSphere, points[ 0 ], 0.2f, LIGHTGRAY );
+                DrawModel( GameCube, points[ 3 ], 0.2f, LIGHTGRAY );
+            }
 
             // DrawSplineSegmentBezierCubic3D( points[0], points[1], points[2], points[3], 24, LIGHTGRAY, false );
 
-            points[ 2 ] = spherePosition;
-            points[ 2 ].y -= 15;
-            points[ 3 ] = spherePosition;
-            DrawSplineSegmentBezierCubic3D( points[0], points[1], points[2], points[3], 24, LIGHTGRAY, false );
+            if ( ElementLines ) {
+                points[ 2 ] = spherePosition;
+                points[ 2 ].y -= 15;
+                points[ 3 ] = spherePosition;
+                DrawSplineSegmentBezierCubic3D( points[0], points[1], points[2], points[3], 24, LIGHTGRAY, false );
+            }
         }
 
-        Vector3 modelPosition = (Vector3){ 20.0f*sin(cycle), 0.0f, -20.0f*cos(cycle) };
-        DrawModel( GameModel, modelPosition, 1.5f, WHITE);        // Draw 3d model with texture
+        if ( ElementModels ) {
 
-        modelPosition.y += 8;
-        DrawModel( GameEsp32, modelPosition, 0.1f, WHITE);        // Draw 3d model with texture
+            Vector3 modelPosition = (Vector3){ 20.0f*sin(cycle), 0.0f, -20.0f*cos(cycle) };
+            DrawModel( GameModel, modelPosition, 1.5f, WHITE);        // Draw 3d model with texture
 
-        modelPosition.y += 10;
-        DrawModel( GameStl, modelPosition, 0.1f, RED);        // Draw 3d model with texture
+            modelPosition.y += 8;
+            DrawModel( GameEsp32, modelPosition, 0.1f, WHITE);        // Draw 3d model with texture
 
-        DrawGrid( 20, 10.0f );        // Draw a grid
+            modelPosition.y += 10;
+            DrawModel( GameStl, modelPosition, 0.1f, RED);        // Draw 3d model with texture
+        }
+
+        if ( ElementLines ) {
+            DrawGrid( 20, 10.0f );        // Draw a grid
+        }
 
     EndMode3D();
                 
-    BeginShaderMode( FontShader);    // Activate SDF font shader
-        DrawTextEx(FontSDF, "VISUALIZATION DEMO", pos, font.baseSize*3.0f, 4, MAROON);
-    EndShaderMode();
+    if ( ElementText) {
+        BeginShaderMode( FontShader);    // Activate SDF font shader
+            DrawTextEx(FontSDF, "VISUALIZATION DEMO", pos, font.baseSize*3.0f, 4, MAROON);
+        EndShaderMode();
+    }
 
-    BeginShaderMode( FontShader);    // Activate SDF font shader
+    if ( ElementUi ) {
+        BeginShaderMode( FontShader);    // Activate SDF font shader
 
-        // GuiDrawRectangle( (Rectangle){ 5, 115, 410, 290 }, 1, WHITE, WHITE );
-        GuiPanel( (Rectangle){ 20, 70, 400, 215 }, 0 );
-        // GuiGroupBox( (Rectangle){ 10, 120, 400, 200 }, "Viz Control" );
+            // GuiDrawRectangle( (Rectangle){ 5, 115, 410, 290 }, 1, WHITE, WHITE );
+            GuiPanel( (Rectangle){ 20, 70, 340, 410 }, 0 );
+            // GuiGroupBox( (Rectangle){ 10, 120, 400, 200 }, "Viz Control" );
 
-        GuiSetStyle( DEFAULT, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT );
-        GuiLabel((Rectangle){ 35, 80, 90, 32 }, "Layout");
-        GuiLabel((Rectangle){ 35, 120, 90, 32 }, "Run");
-        GuiLabel((Rectangle){ 35, 160, 90, 32 }, "FPS" );
-        GuiLabel((Rectangle){ 35, 240, 90, 32 }, "Lights" );
-        GuiSetStyle( DEFAULT, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER );
+            GuiSetStyle( DEFAULT, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT );
+            GuiLabel((Rectangle){ 35, 80, 90, 32 }, "Layout");
+            GuiLabel((Rectangle){ 35, 120, 90, 32 }, "Run");
+            GuiLabel((Rectangle){ 35, 160, 90, 32 }, "FPS" );
+            GuiLabel((Rectangle){ 35, 240, 90, 32 }, "Lights" );
+            GuiLabel((Rectangle){ 35, 280, 90, 32 }, "Element" );
+            GuiSetStyle( DEFAULT, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER );
 
-        GuiComboBox((Rectangle){ 130, 80, 200, 32 }, "LayoutA;LayoutB", &Layout);
+            GuiComboBox((Rectangle){ 130, 80, 200, 32 }, "LayoutA;LayoutB", &Layout);
 
-        GuiSetIconScale(1);
+            GuiSetIconScale(1);
 
-        GuiToggleSlider( (Rectangle){ 130, 120, 200, 32 }, "Static;Dynamic", &Dynamic );
+            GuiToggleSlider( (Rectangle){ 130, 120, 200, 32 }, "Static;Dynamic", &Dynamic );
 
-        int fps = GetFPS();
-        GuiValueBox((Rectangle){ 130, 160, 200, 32 }, 0, &fps, 0, 1000, false );
+            int fps = GetFPS();
+            GuiValueBox((Rectangle){ 130, 160, 200, 32 }, 0, &fps, 0, 1000, false );
 
-        GuiComboBox((Rectangle){ 130, 200, 200, 32 }, "10;30;60;120;160;220", &FrameRateIndex );
+            GuiComboBox((Rectangle){ 130, 200, 200, 32 }, "10;30;60;120;160;220", &FrameRateIndex );
 
-        GuiToggle( (Rectangle){ 130, 240, 30, 32 }, "W", &lights[0].enabled );
-        GuiToggle( (Rectangle){ 170, 240, 30, 32 }, "R", &lights[1].enabled );
-        GuiToggle( (Rectangle){ 210, 240, 30, 32 }, "G", &lights[2].enabled );
-        GuiToggle( (Rectangle){ 250, 240, 30, 32 }, "B", &lights[3].enabled );
-        GuiToggle( (Rectangle){ 290, 240, 30, 32 }, "A", &AmbientLight );
-        for ( int i = 0; i < 4; i++ )
-            InstancingLights[i].enabled=lights[i].enabled;
-    
-    EndShaderMode();
+            GuiToggle( (Rectangle){ 130, 240, 30, 32 }, "W", &Lights[0].enabled );
+            GuiToggle( (Rectangle){ 170, 240, 30, 32 }, "R", &Lights[1].enabled );
+            GuiToggle( (Rectangle){ 210, 240, 30, 32 }, "G", &Lights[2].enabled );
+            GuiToggle( (Rectangle){ 250, 240, 30, 32 }, "B", &Lights[3].enabled );
+            GuiToggle( (Rectangle){ 290, 240, 30, 32 }, "A", &AmbientLight );
+            for ( int i = 0; i < 4; i++ )
+                InstancingLights[i].enabled=Lights[i].enabled;
+
+            GuiToggle( (Rectangle){ 130, 280, 200, 32 }, "Lines", &ElementLines );
+            GuiToggle( (Rectangle){ 130, 320, 200, 32 }, "Models", &ElementModels );
+            GuiToggle( (Rectangle){ 130, 360, 200, 32 }, "Text", &ElementText );
+            GuiToggle( (Rectangle){ 130, 400, 200, 32 }, "UI", &ElementUi );
+            GuiToggle( (Rectangle){ 130, 440, 200, 32 }, "Erase", &ElementErase );
+
+        EndShaderMode();
+    }
 }
 
 // Gameplay Screen Unload logic
